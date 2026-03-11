@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Essays & Interview Prep · UniGuide</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .page-hero { background:var(--navy); color:#fff; padding:52px 24px 44px; }
+    .page-hero h1 { font-size:clamp(1.5rem,3vw,2.2rem); color:#fff; margin-bottom:8px; }
+    .page-hero p { color:rgba(255,255,255,0.70); font-size:1rem; }
+    .guide-card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); padding:28px 24px; margin-bottom:20px; }
+    .guide-card h3 { margin-bottom:12px; font-size:1.1rem; }
+    .guide-card ol, .guide-card ul { padding-left:20px; }
+    .guide-card li { font-size:0.92rem; color:var(--navy); margin-bottom:8px; line-height:1.55; }
+    .tip-box { background:#fff4e0; border:1px solid #f7c948; border-radius:10px; padding:14px 16px; margin-top:16px; }
+    .tip-box strong { color:#7a5200; }
+    .sample-box { background:var(--light); border-left:4px solid var(--navy); border-radius:0 10px 10px 0; padding:16px 18px; margin-top:14px; font-size:0.88rem; font-style:italic; color:var(--navy); line-height:1.6; }
+    .q-bank-item { padding:14px 16px; border:1px solid var(--border); border-radius:10px; margin-bottom:10px; background:var(--white); }
+    .q-bank-item h4 { font-size:0.93rem; margin-bottom:6px; }
+    .q-bank-item p { font-size:0.85rem; color:var(--grey); }
+    .q-bank-item .expand-btn { font-size:0.80rem; color:var(--red); font-weight:700; cursor:pointer; margin-top:8px; display:inline-block; }
+    .q-expand { display:none; margin-top:10px; border-top:1px solid var(--border); padding-top:10px; font-size:0.85rem; color:var(--navy); }
+    .q-expand.open { display:block; }
+    .checklist-essay li { font-size:0.88rem; }
+
+    /* Draft workspace */
+    .draft-workspace {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:var(--radius); padding:24px; margin-bottom:20px;
+    }
+    .draft-specifier {
+      display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:18px;
+    }
+    @media(max-width:640px){ .draft-specifier { grid-template-columns:1fr; } }
+    .draft-specifier select, .draft-specifier input {
+      width:100%; border:1.5px solid var(--border); border-radius:8px;
+      padding:9px 12px; font-size:.88rem; font-family:inherit; background:#fff;
+    }
+    .draft-specifier select:focus, .draft-specifier input:focus { outline:none; border-color:var(--red); }
+    .draft-label { font-size:.70rem; font-weight:700; color:var(--grey); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+    .draft-textarea {
+      width:100%; min-height:340px; border:1.5px solid var(--border); border-radius:10px;
+      padding:16px; font-size:.93rem; font-family:Georgia, serif; line-height:1.75;
+      resize:vertical; box-sizing:border-box; color:var(--navy); background:#fdfcfb;
+    }
+    .draft-textarea:focus { outline:none; border-color:var(--navy); }
+    .draft-toolbar {
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:10px; margin-top:12px;
+    }
+    .word-count { font-size:.80rem; color:var(--grey); }
+    .draft-btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .draft-saved-indicator { font-size:.76rem; color:var(--success); font-weight:700; opacity:0; transition:opacity .3s; }
+    .draft-saved-indicator.show { opacity:1; }
+    .prompt-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .prompt-chip {
+      padding:5px 12px; border-radius:50px; border:1.5px solid var(--border);
+      font-size:.78rem; font-weight:700; cursor:pointer; background:#fff;
+      transition:all .15s; color:var(--navy);
+    }
+    .prompt-chip:hover { border-color:var(--red); color:var(--red); }
+    .prompt-chip.active { border-color:var(--red); background:#fde8ec; color:var(--red); }
+
+    /* Version history */
+    .version-panel { background:var(--light); border-radius:10px; border:1px solid var(--border); padding:14px 16px; margin-top:16px; }
+    .version-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--border); font-size:.82rem; }
+    .version-row:last-child { border:none; }
+    .version-name { flex:1; font-weight:600; color:var(--navy); }
+    .version-date { color:var(--grey); font-size:.74rem; }
+    .version-wc   { color:var(--grey); font-size:.74rem; min-width:60px; text-align:right; }
+    .version-btn  { font-size:.72rem; font-weight:700; padding:2px 10px; border-radius:50px;
+      border:1px solid var(--border); background:#fff; cursor:pointer; color:var(--navy); }
+    .version-btn:hover { border-color:var(--red); color:var(--red); }
+    .version-del  { color:var(--grey); background:none; border:none; cursor:pointer; font-size:.85rem; padding:2px 6px; }
+    .version-del:hover { color:var(--red); }
+
+    /* Per-draft checklist */
+    .draft-checklist { margin-top:16px; }
+    .draft-checklist-title { font-weight:800; font-size:.84rem; color:var(--navy); margin-bottom:10px; }
+    .draft-cl-item { display:flex; align-items:flex-start; gap:8px; font-size:.82rem; color:var(--navy); margin-bottom:7px; }
+    .draft-cl-box { width:16px; height:16px; border:2px solid var(--border); border-radius:4px; flex-shrink:0;
+      cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.65rem;
+      margin-top:1px; transition:all .15s; }
+    .draft-cl-box.checked { background:var(--success); border-color:var(--success); color:#fff; font-weight:900; }
+
+    /* Draft tabs in sidebar */
+    .draft-nav { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+    .draft-nav-tab { padding:6px 14px; border-radius:50px; border:1.5px solid var(--border);
+      font-size:.80rem; font-weight:700; cursor:pointer; background:#fff; color:var(--navy);
+      transition:all .15s; position:relative; }
+    .draft-nav-tab:hover { border-color:var(--red); }
+    .draft-nav-tab.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+    .draft-nav-tab .draft-tab-x { display:none; position:absolute; top:-6px; right:-6px;
+      background:var(--red); color:#fff; border-radius:50%; width:16px; height:16px;
+      font-size:.62rem; font-weight:900; align-items:center; justify-content:center;
+      cursor:pointer; }
+    .draft-nav-tab:hover .draft-tab-x { display:flex; }
+    .new-draft-btn { padding:6px 12px; border-radius:50px; border:1.5px dashed var(--border);
+      font-size:.80rem; font-weight:700; cursor:pointer; background:#fff; color:var(--grey); }
+    .new-draft-btn:hover { border-color:var(--red); color:var(--red); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html"><span>Uni</span>Guide 🍁</a>
+  <div class="nav-links">
+    <a href="browsing.html">Browse</a>
+    <a href="selections.html">Selections</a>
+    <a href="saved.html">My List</a>
+    <a href="essays.html" class="active">Essays</a>
+    <a href="tracker.html">Tracker</a>
+    <span id="nav-logged-out" class="nav-auth"><a href="#" class="nav-btn-outline" onclick="ugOpenAuth('login');return false;">Log In</a></span>
+    <span id="nav-logged-in" class="nav-auth" style="display:none;"><span class="nav-user-pill"><span class="nav-avatar" id="nav-avatar">U</span><span id="nav-user-name">User</span></span><a href="profile.html" class="nav-profile-link">Profile</a><button class="nav-logout-btn" onclick="ugLogOut()">Log Out</button></span>
+    <a href="selections.html" class="nav-btn">Start YOUR plan</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <h1>Essays & Interview Prep</h1>
+    <p>Structured guides, real frameworks, and an AI writing assistant — so your application actually reflects who you are.</p>
+  </div>
+</div>
+
+<section style="padding:48px 24px;">
+  <div class="container">
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'t-personal')">📝 Personal Statement</div>
+      <div class="tab" onclick="switchTab(this,'t-supp')">🎓 Supplemental Essays</div>
+      <div class="tab" onclick="switchTab(this,'t-interview')">🎤 Interview Prep</div>
+      <div class="tab" onclick="switchTab(this,'t-draft')">✏️ My Drafts</div>
+      <div class="tab" onclick="switchTab(this,'t-checklist')">✅ Final Checklist</div>
+    </div>
+
+    <!-- PERSONAL STATEMENT -->
+    <div class="tab-panel active" id="t-personal">
+      <div class="guide-card">
+        <h3>What is a Personal Statement?</h3>
+        <p style="font-size:0.92rem;color:var(--grey);margin-bottom:14px;">A personal statement is your chance to speak directly to an admissions committee as a human being — not just a number. Most Canadian universities require one, especially for competitive programs.</p>
+        <h3 style="margin-top:20px;">Step 1 — Choose Your Central Story</h3>
+        <ul>
+          <li>Identify one meaningful experience that shaped your interest in your chosen field.</li>
+          <li>Avoid trying to cover everything. One focused story told deeply beats five surface-level points.</li>
+          <li>Ask yourself: <em>"What do I want them to know about me that my transcript can't show?"</em></li>
+        </ul>
+        <div class="tip-box"><strong>💡 Tip:</strong> The best essays often start with a moment, a decision, or a question — not a biography. Drop the reader into a scene.</div>
+      </div>
+
+      <div class="guide-card">
+        <h3>The Hook → Body → Reflection Framework</h3>
+        <ol>
+          <li><strong>Hook (opening paragraph):</strong> Start with a specific moment, scene, or question. Make the reader lean in. Avoid generic openers like "I have always been passionate about…"</li>
+          <li><strong>Context (paragraph 2):</strong> Briefly explain the background — who you are, where this interest came from, what led to this experience.</li>
+          <li><strong>Impact (paragraphs 3–4):</strong> What did you do? What did you build, learn, or overcome? Be specific with names, numbers, and outcomes.</li>
+          <li><strong>Reflection (paragraph 5):</strong> What did this change in you? How has it shaped your goals and why this program?</li>
+          <li><strong>Forward close:</strong> End with where you want to go — connect your past experience to what you'll do at this university.</li>
+        </ol>
+        <div class="sample-box">
+          <strong>Sample Hook (Engineering):</strong><br/>
+          "The motor burned out at 11:43 PM, two hours before our robotics regional. My team looked at me — I was the lead engineer. I had no replacement part, no time, and no plan B. What happened in the next two hours changed how I think about engineering entirely."
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <h3>Common Mistakes to Avoid</h3>
+        <ul>
+          <li>❌ Starting with "I was born…" or "Since I was young, I always…"</li>
+          <li>❌ Listing your résumé in paragraph form — that's what your activities section is for.</li>
+          <li>❌ Trying to impress with big vocabulary — clarity beats complexity.</li>
+          <li>❌ Writing what you think they want to hear instead of what's true.</li>
+          <li>❌ Not leaving time to revise — great essays are rewritten 5+ times.</li>
+        </ul>
+        <div class="tip-box"><strong>💡 Word Count Strategy:</strong> Most Canadian personal statements are 300–600 words. Aim for the upper half of the limit. Every sentence should earn its place.</div>
+      </div>
+    </div>
+
+    <!-- SUPPLEMENTAL ESSAYS -->
+    <div class="tab-panel" id="t-supp">
+      <div class="guide-card">
+        <h3>Why This University?</h3>
+        <p style="font-size:0.90rem;color:var(--grey);margin-bottom:14px;">This is the most common supplemental prompt. Admissions wants to know you've done your homework.</p>
+        <ul>
+          <li>Name specific programs, labs, professors, clubs, or opportunities at that school — not just "it's ranked #1."</li>
+          <li>Connect their specific offerings to your specific goals.</li>
+          <li>Show you've visited, attended a virtual tour, or spoken to a current student (if true).</li>
+        </ul>
+        <div class="sample-box"><strong>Weak:</strong> "I want to attend Waterloo because it is one of the best engineering schools in Canada."<br/><br/><strong>Strong:</strong> "Waterloo's co-op program — specifically the opportunity to work in industry as early as second year — aligns with my goal of building real engineering experience before graduation. The fact that 100% of Engineering co-op students find placements means I'll graduate with demonstrated, not just theoretical, skills."</div>
+      </div>
+
+      <div class="guide-card">
+        <h3>Waterloo AIF (Admission Information Form) — Special Guide</h3>
+        <p style="font-size:0.90rem;color:var(--grey);margin-bottom:14px;">The AIF is MANDATORY for most Waterloo Engineering and Math programs. It is heavily weighted — treat it like a mini-portfolio.</p>
+        <ul>
+          <li><strong>Activities section:</strong> List every extracurricular in detail. Include your role, hours/week, duration, and what you accomplished.</li>
+          <li><strong>Essay responses:</strong> Waterloo asks about problem-solving, collaboration, and initiative. Use the STAR format (Situation, Task, Action, Result).</li>
+          <li><strong>Context section:</strong> If your grades dropped for a reason, explain it here. Waterloo reviewers consider context seriously.</li>
+          <li><strong>Do NOT leave sections blank</strong> — even if an answer feels small, fill it in thoughtfully.</li>
+        </ul>
+        <div class="tip-box"><strong>💡 AIF Tip:</strong> Write your AIF responses in a separate document first, then paste in. The AIF doesn't auto-save reliably.</div>
+      </div>
+
+      <div class="guide-card">
+        <h3>McMaster, Queen's, and Other Supplemental Notes</h3>
+        <ul>
+          <li><strong>McMaster Health Sciences:</strong> Extremely competitive. Essays must demonstrate intellectual curiosity and community contribution — not just grades.</li>
+          <li><strong>Queen's Commerce:</strong> Requires a separate video interview (SOLUS). Practice answering "Why Commerce?" in under 2 minutes.</li>
+          <li><strong>Western Ivey AEO:</strong> Applied in first year at Western — not at admission. Focus on getting into Western first, then apply for Ivey in second year.</li>
+          <li><strong>UBC supplemental:</strong> Personal profile with activity sections and short essays. Strong emphasis on impact and leadership.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- INTERVIEW PREP -->
+    <div class="tab-panel" id="t-interview">
+      <div class="guide-card">
+        <h3>The STAR Method — Use This for Every Behavioural Question</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;">
+          <div style="background:var(--light);border-radius:10px;padding:14px;border-left:4px solid var(--red);"><strong>S — Situation</strong><p style="font-size:0.85rem;margin-top:4px;color:var(--grey);">Set the scene. Where, when, who was involved?</p></div>
+          <div style="background:var(--light);border-radius:10px;padding:14px;border-left:4px solid var(--accent);"><strong>T — Task</strong><p style="font-size:0.85rem;margin-top:4px;color:var(--grey);">What was your specific responsibility or challenge?</p></div>
+          <div style="background:var(--light);border-radius:10px;padding:14px;border-left:4px solid var(--navy);"><strong>A — Action</strong><p style="font-size:0.85rem;margin-top:4px;color:var(--grey);">What did YOU specifically do? (Not "we" — "I")</p></div>
+          <div style="background:var(--light);border-radius:10px;padding:14px;border-left:4px solid var(--success);"><strong>R — Result</strong><p style="font-size:0.85rem;margin-top:4px;color:var(--grey);">What was the outcome? Quantify if possible.</p></div>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <h3>McMaster MMI (Multiple Mini Interview) — Question Bank</h3>
+        <p style="font-size:0.88rem;color:var(--grey);margin-bottom:16px;">The MMI uses 8–10 short stations (8 minutes each). Each has a scenario or question. Click any to expand guidance.</p>
+
+        <div class="q-bank-item">
+          <h4>🏥 "A patient refuses a life-saving blood transfusion for religious reasons. As their doctor, what do you do?"</h4>
+          <p>Ethics — Patient Autonomy vs. Beneficence</p>
+          <span class="expand-btn" onclick="toggleExpand(this)">+ Show approach</span>
+          <div class="q-expand">Acknowledge the tension (autonomy vs. doing good). Do NOT immediately override the patient. Steps: confirm the decision is informed, ensure they understand consequences, consult ethics board, respect their autonomy if they're competent. Show you see multiple perspectives — MMI scores empathy and nuance, not a "right" answer.</div>
+        </div>
+        <div class="q-bank-item">
+          <h4>👥 "You see a teammate cheating on an important group project. What do you do?"</h4>
+          <p>Ethics — Integrity vs. Loyalty</p>
+          <span class="expand-btn" onclick="toggleExpand(this)">+ Show approach</span>
+          <div class="q-expand">Start by addressing it privately with the teammate first — give them a chance to correct it. If they refuse, escalate. Show that integrity isn't negotiable but you also approach it with fairness and not impulsivity. Avoid saying "I'd report them immediately" with no nuance.</div>
+        </div>
+        <div class="q-bank-item">
+          <h4>🌍 "What is the biggest challenge facing Canadian healthcare in the next 20 years?"</h4>
+          <p>Policy & Critical Thinking</p>
+          <span class="expand-btn" onclick="toggleExpand(this)">+ Show approach</span>
+          <div class="q-expand">Good answers: aging population strain, physician shortage, mental health access gap, rural health disparities, or long-term care failures (COVID exposed this). Pick one, explain why it matters, and propose a direction — not a perfect solution. Show you can think critically about systemic issues.</div>
+        </div>
+        <div class="q-bank-item">
+          <h4>🤔 "Tell me about a time you changed your mind about something important."</h4>
+          <p>Self-Awareness & Growth</p>
+          <span class="expand-btn" onclick="toggleExpand(this)">+ Show approach</span>
+          <div class="q-expand">Use STAR. Choose a genuine example where you had to overcome pride or bias. The point is showing intellectual humility — that you can update your beliefs when presented with new evidence. This is highly valued in healthcare professions.</div>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <h3>General Interview Tips</h3>
+        <ul>
+          <li>Practice out loud — thinking of an answer isn't the same as saying one coherently.</li>
+          <li>Know your extracurriculars deeply — "tell me about your volunteer work" is always asked.</li>
+          <li>Prepare 2–3 stories from your life that show leadership, resilience, and teamwork.</li>
+          <li>It's okay to pause and think. Saying "That's a great question, let me think for a second" is professional.</li>
+          <li>Research the program and mention something specific — it shows genuine interest.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MY DRAFTS -->
+    <div class="tab-panel" id="t-draft">
+      <div class="draft-workspace">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px;">
+          <h3 style="margin:0;">Essay Draft Workspace</h3>
+          <span class="draft-saved-indicator" id="savedIndicator">✓ Saved</span>
+        </div>
+        <p style="font-size:.86rem;color:var(--grey);margin-bottom:16px;">Each draft is tagged to a university and essay type. Work is saved automatically in your browser. Save named versions to track rewrites.</p>
+
+        <!-- Draft tabs -->
+        <div class="draft-nav" id="draftNav"></div>
+
+        <!-- Saved programs quick-fill -->
+        <div id="savedProgsRow" style="display:none;margin-bottom:12px;">
+          <div class="draft-label" style="margin-bottom:5px;">Pre-fill from My List</div>
+          <div id="savedProgsChips" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        </div>
+
+        <!-- Specifier fields -->
+        <div class="draft-specifier">
+          <div>
+            <div class="draft-label">University</div>
+            <input type="text" id="draftUni" placeholder="e.g. University of Waterloo" oninput="saveDraftMeta()"/>
+          </div>
+          <div>
+            <div class="draft-label">Program / Major</div>
+            <input type="text" id="draftProgram" placeholder="e.g. Mechanical Engineering" oninput="saveDraftMeta()"/>
+          </div>
+          <div>
+            <div class="draft-label">Essay Type</div>
+            <select id="draftType" onchange="saveDraftMeta()">
+              <option value="">— Select type —</option>
+              <option>Personal Statement</option>
+              <option>Waterloo AIF Response</option>
+              <option>Why This University?</option>
+              <option>Why This Program?</option>
+              <option>Extracurricular Description</option>
+              <option>Scholarship Essay</option>
+              <option>Interview Practice Answer</option>
+              <option>McMaster Health Sciences Essay</option>
+              <option>Queen's Video Interview Response</option>
+              <option>UBC Personal Profile Response</option>
+              <option>Other Supplemental Essay</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Word limit helper -->
+        <div id="wordLimitHint" style="font-size:.76rem;color:var(--grey);margin-bottom:10px;"></div>
+
+        <!-- Prompt chips -->
+        <div style="margin-bottom:12px;">
+          <div class="draft-label" style="margin-bottom:6px;">Writing Starters</div>
+          <div class="prompt-chips">
+            <span class="prompt-chip" onclick="insertPrompt('The moment I knew I wanted to study [field] was when...')">Defining Moment</span>
+            <span class="prompt-chip" onclick="insertPrompt('I chose [University] because of its [specific feature/program/professor/lab]...')">Why This Uni</span>
+            <span class="prompt-chip" onclick="insertPrompt('The challenge that tested me most was...\n\nI responded by...\n\nWhat I learned was...')">Overcoming Challenge</span>
+            <span class="prompt-chip" onclick="insertPrompt('In my role as [position] at [organization], I was responsible for...\n\nThe specific impact I had was...')">Leadership / EC</span>
+            <span class="prompt-chip" onclick="insertPrompt('A question I keep returning to is...\n\nThis matters because...\n\nHow I\'ve started exploring it:...')">Intellectual Curiosity</span>
+            <span class="prompt-chip" onclick="insertPrompt('Situation: \nTask: \nAction I took: \nResult: ')">STAR Format</span>
+          </div>
+        </div>
+
+        <!-- Writing area -->
+        <textarea class="draft-textarea" id="draftArea"
+          placeholder="Start writing here... Your draft saves automatically."
+          oninput="onDraftInput()"
+        ></textarea>
+
+        <div class="draft-toolbar">
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span class="word-count" id="draftWordCount">0 words</span>
+            <div id="draftProgressBar" style="height:4px;border-radius:2px;background:var(--border);width:160px;margin-top:2px;overflow:hidden;">
+              <div id="draftProgressFill" style="height:100%;border-radius:2px;background:var(--success);width:0%;transition:width .3s;"></div>
+            </div>
+          </div>
+          <div class="draft-btns">
+            <button class="btn btn-outline btn-sm" onclick="saveVersion()">💾 Save Version</button>
+            <button class="btn btn-outline btn-sm" onclick="downloadDraftPDF()">⬇ Download PDF</button>
+            <button class="btn btn-outline btn-sm" onclick="copyDraft()">Copy Text</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--grey);" onclick="clearDraft()">Clear</button>
+          </div>
+        </div>
+
+        <!-- Per-draft checklist -->
+        <div class="draft-checklist">
+          <div class="draft-checklist-title">✅ Draft Checklist</div>
+          <div id="draftChecklist"></div>
+        </div>
+
+        <!-- Version history -->
+        <div class="version-panel" id="versionPanel" style="display:none;">
+          <div style="font-weight:800;font-size:.82rem;margin-bottom:10px;color:var(--navy);">📂 Saved Versions</div>
+          <div id="versionList"></div>
+        </div>
+      </div>
+
+      <!-- Tips panel -->
+      <div class="guide-card">
+        <h3 style="margin-bottom:12px;">While You Write — Quick Reference</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div style="background:var(--light);border-radius:10px;padding:14px;">
+            <div style="font-weight:800;font-size:.88rem;margin-bottom:8px;">📏 Typical Word Limits</div>
+            <ul style="padding-left:16px;font-size:.82rem;color:var(--navy);line-height:1.7;margin:0;">
+              <li>Personal statement: 300–600 words</li>
+              <li>Waterloo AIF response: 400 words each</li>
+              <li>UBC profile activity: 250 words</li>
+              <li>McMaster Health Sci essay: 650 words</li>
+              <li>Scholarship essays: 500–1,000 words</li>
+              <li>Queen's Commerce video: ~2 min (~300 words)</li>
+            </ul>
+          </div>
+          <div style="background:var(--light);border-radius:10px;padding:14px;">
+            <div style="font-weight:800;font-size:.88rem;margin-bottom:8px;">🔑 What Reviewers Look For</div>
+            <ul style="padding-left:16px;font-size:.82rem;color:var(--navy);line-height:1.7;margin:0;">
+              <li>Specificity — names, dates, outcomes</li>
+              <li>Authenticity — sounds like <em>you</em></li>
+              <li>Agency — what <em>you</em> did, not "we"</li>
+              <li>Growth — what changed after the experience</li>
+              <li>Connection — ties to the program/school</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tip-box" style="margin-top:14px;"><strong>💡 Revision tip:</strong> After your first draft, wait 24 hours before revising. You'll catch things you missed. Use "Save Version" to preserve each major revision.</div>
+      </div>
+    </div>
+
+    <!-- FINAL CHECKLIST -->
+    <div class="tab-panel" id="t-checklist">
+      <div class="guide-card">
+        <h3>Before You Submit — Final Checklist</h3>
+        <ul class="checklist checklist-essay">
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>Read your essay out loud — your ear catches what your eye misses</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>Have at least one other person (teacher, parent) read it for clarity</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>Check word count — make sure you're within the stated limit</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>Verify your name and student number are on all submitted documents</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>Confirm all supplemental materials are submitted (AIF, portfolio, etc.)</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>Reference letters have been sent by your teachers</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>Transcript has been submitted by your school (via OUAC)</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>Application fee has been paid and confirmed</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>You have received a confirmation email from the university</div></li>
+          <li><div class="check-box" onclick="toggleCheck(this)"></div><div>You know where to check your application status (portal login saved)</div></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- AI Chatbot -->
+<div class="chatbot-bubble">
+  <div class="chatbot-panel" id="chatPanel">
+    <div class="chatbot-header">🤖 Essay & Interview Advisor <span style="margin-left:auto;cursor:pointer;opacity:0.7;" onclick="toggleChat()">✕</span></div>
+    <div class="chatbot-messages" id="chatMessages">
+      <div class="chat-msg bot">Hi! I can help you brainstorm essay topics, review your structure, practice interview questions, or give feedback on your answers. What do you need help with?</div>
+    </div>
+    <div class="chatbot-input-row">
+      <input type="text" id="chatInput" placeholder="e.g. 'Help me brainstorm my essay topic'" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button onclick="sendChat()">➤</button>
+    </div>
+  </div>
+  <button class="chatbot-btn" onclick="toggleChat()">🤖</button>
+</div>
+
+<footer class="footer">
+  <strong>UniGuide 🍁</strong> — Free Canadian University Planning · Built for Grades 9–12
+</footer>
+
+<script>
+function switchTab(el, tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ─── Draft Workspace ────────────────────────────────────────
+let currentDraftKey = null;
+let draftSaveTimer  = null;
+let allDraftKeys    = [];
+
+const WORD_LIMITS = {
+  'Personal Statement':              { low:300, high:600 },
+  'Waterloo AIF Response':           { low:300, high:400 },
+  'Why This University?':            { low:200, high:400 },
+  'Why This Program?':               { low:200, high:400 },
+  'Extracurricular Description':     { low:100, high:250 },
+  'Scholarship Essay':               { low:500, high:1000 },
+  'Interview Practice Answer':       { low:150, high:300 },
+  'McMaster Health Sciences Essay':  { low:500, high:650 },
+  "Queen's Video Interview Response":{ low:200, high:300 },
+  'UBC Personal Profile Response':   { low:150, high:250 },
+};
+
+const DRAFT_CHECKLIST_ITEMS = [
+  'My opening line creates immediate interest (not "I have always been passionate...")',
+  'Every paragraph answers: what did I do, and what was the impact?',
+  'I used "I" not "we" — my individual role is clear',
+  'I named the specific university/program and a specific reason I want to go there',
+  'I have read it aloud at least once to check for awkward phrasing',
+  'Word count is within the stated limit for this essay type',
+  'A teacher or trusted adult has reviewed this draft',
+  'I have waited at least 24 hours since my last revision before reading again',
+];
+
+function getDraftIndex() {
+  try { return JSON.parse(localStorage.getItem('essay_index') || '[]'); } catch(e) { return []; }
+}
+function saveDraftIndex(arr) { localStorage.setItem('essay_index', JSON.stringify(arr)); if(typeof ugSave==='function') ugSave('essay_index',arr); }
+function getDraftData(key) {
+  try { return JSON.parse(localStorage.getItem('essay_' + key) || '{}'); } catch(e) { return {}; }
+}
+function saveDraftData(key, data) { localStorage.setItem('essay_' + key, JSON.stringify(data)); if(typeof ugSave==='function') ugSave('essay_'+key,data); }
+
+function initDrafts() {
+  allDraftKeys = getDraftIndex();
+  if (!allDraftKeys.length) {
+    allDraftKeys = ['draft-1'];
+    saveDraftIndex(allDraftKeys);
+    saveDraftData('draft-1', { text:'', uni:'', program:'', type:'', versions:[], checklist:{} });
+  }
+  renderDraftTabs();
+  loadDraft(allDraftKeys[0]);
+  loadSavedProgsQuickFill();
+}
+
+function renderDraftTabs() {
+  const nav = document.getElementById('draftNav');
+  nav.innerHTML = allDraftKeys.map(k => {
+    const d = getDraftData(k);
+    const label = [d.uni, d.type].filter(Boolean).join(' · ') || '(untitled)';
+    const isActive = k === currentDraftKey;
+    return `<div class="draft-nav-tab${isActive?' active':''}" onclick="loadDraft('${k}')">
+      ${label.length > 28 ? label.slice(0,28)+'…' : label}
+      <span class="draft-tab-x" onclick="event.stopPropagation();deleteDraft('${k}')">✕</span>
+    </div>`;
+  }).join('') + `<button class="new-draft-btn" onclick="addNewDraft()">+ New Draft</button>`;
+}
+
+function addNewDraft() {
+  const key = 'draft-' + Date.now();
+  allDraftKeys.push(key);
+  saveDraftIndex(allDraftKeys);
+  saveDraftData(key, { text:'', uni:'', program:'', type:'', versions:[], checklist:{} });
+  loadDraft(key);
+}
+
+function deleteDraft(key) {
+  if (allDraftKeys.length <= 1) { alert('You need at least one draft.'); return; }
+  if (!confirm('Delete this draft? This cannot be undone.')) return;
+  allDraftKeys = allDraftKeys.filter(k => k !== key);
+  localStorage.removeItem('essay_' + key); if(typeof ugRemove==='function') ugRemove('essay_'+key);
+  saveDraftIndex(allDraftKeys);
+  if (currentDraftKey === key) currentDraftKey = null;
+  renderDraftTabs();
+  loadDraft(allDraftKeys[0]);
+}
+
+function loadDraft(key) {
+  currentDraftKey = key;
+  const data = getDraftData(key);
+  document.getElementById('draftArea').value    = data.text    || '';
+  document.getElementById('draftUni').value     = data.uni     || '';
+  document.getElementById('draftProgram').value = data.program || '';
+  document.getElementById('draftType').value    = data.type    || '';
+  updateWordCount();
+  renderChecklist(data);
+  renderVersions(data);
+  renderDraftTabs();
+  updateWordLimitHint();
+}
+
+function saveDraftMeta() {
+  const data = getDraftData(currentDraftKey);
+  data.uni     = document.getElementById('draftUni').value;
+  data.program = document.getElementById('draftProgram').value;
+  data.type    = document.getElementById('draftType').value;
+  saveDraftData(currentDraftKey, data);
+  renderDraftTabs();
+  updateWordLimitHint();
+  flashSaved();
+}
+
+function onDraftInput() {
+  updateWordCount();
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(() => {
+    const data   = getDraftData(currentDraftKey);
+    data.text    = document.getElementById('draftArea').value;
+    data.uni     = document.getElementById('draftUni').value;
+    data.program = document.getElementById('draftProgram').value;
+    data.type    = document.getElementById('draftType').value;
+    saveDraftData(currentDraftKey, data);
+    flashSaved();
+  }, 800);
+}
+
+function updateWordCount() {
+  const text  = document.getElementById('draftArea').value.trim();
+  const words = text ? text.split(/\s+/).length : 0;
+  document.getElementById('draftWordCount').textContent = words + ' word' + (words===1?'':'s');
+  // Progress bar vs limit
+  const type = document.getElementById('draftType').value;
+  const limit = WORD_LIMITS[type];
+  const fill = document.getElementById('draftProgressFill');
+  const bar  = document.getElementById('draftProgressBar');
+  if (limit && words > 0) {
+    bar.style.display = 'block';
+    const pct = Math.min(100, Math.round(words / limit.high * 100));
+    fill.style.width = pct + '%';
+    fill.style.background = pct > 100 ? 'var(--red)' : pct >= 80 ? 'var(--success)' : '#f7c948';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function updateWordLimitHint() {
+  const type = document.getElementById('draftType').value;
+  const hint = document.getElementById('wordLimitHint');
+  if (type && WORD_LIMITS[type]) {
+    const l = WORD_LIMITS[type];
+    hint.textContent = `Target word count for "${type}": ${l.low}–${l.high} words`;
+  } else {
+    hint.textContent = '';
+  }
+}
+
+function flashSaved() {
+  const el = document.getElementById('savedIndicator');
+  el.classList.add('show');
+  clearTimeout(window._flashTimer);
+  window._flashTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ─── Versioning ────────────────────────────────────────────────
+function saveVersion() {
+  const text = document.getElementById('draftArea').value.trim();
+  if (!text) { alert('Nothing to save — your draft is empty.'); return; }
+  const name = prompt('Name this version:', 'v' + new Date().toLocaleDateString('en-CA'));
+  if (!name) return;
+  const data = getDraftData(currentDraftKey);
+  data.versions = data.versions || [];
+  const words = text.split(/\s+/).length;
+  data.versions.unshift({ name, text, date: new Date().toISOString(), words });
+  if (data.versions.length > 20) data.versions = data.versions.slice(0, 20);
+  saveDraftData(currentDraftKey, data);
+  renderVersions(data);
+  flashSaved();
+}
+
+function renderVersions(data) {
+  const panel = document.getElementById('versionPanel');
+  const list  = document.getElementById('versionList');
+  const vs = data.versions || [];
+  panel.style.display = vs.length ? 'block' : 'none';
+  list.innerHTML = vs.map((v, i) => `
+    <div class="version-row">
+      <span class="version-name">${v.name}</span>
+      <span class="version-date">${new Date(v.date).toLocaleDateString('en-CA')}</span>
+      <span class="version-wc">${v.words} words</span>
+      <button class="version-btn" onclick="restoreVersion(${i})">Restore</button>
+      <button class="version-del" onclick="deleteVersion(${i})" title="Delete this version">✕</button>
+    </div>`).join('');
+}
+
+function restoreVersion(idx) {
+  const data = getDraftData(currentDraftKey);
+  const v = data.versions[idx];
+  if (!v) return;
+  if (!confirm(`Restore version "${v.name}"? Your current draft will be replaced.`)) return;
+  document.getElementById('draftArea').value = v.text;
+  updateWordCount();
+  onDraftInput();
+}
+
+function deleteVersion(idx) {
+  const data = getDraftData(currentDraftKey);
+  data.versions.splice(idx, 1);
+  saveDraftData(currentDraftKey, data);
+  renderVersions(data);
+}
+
+// ─── Per-draft checklist ───────────────────────────────────────
+function renderChecklist(data) {
+  const cl = document.getElementById('draftChecklist');
+  const state = (data && data.checklist) || {};
+  cl.innerHTML = DRAFT_CHECKLIST_ITEMS.map((item, i) => {
+    const checked = !!state[i];
+    return `<div class="draft-cl-item">
+      <div class="draft-cl-box${checked?' checked':''}" onclick="toggleDraftCheck(${i})">${checked?'✓':''}</div>
+      <span style="${checked?'text-decoration:line-through;color:var(--grey);':''}">${item}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleDraftCheck(idx) {
+  const data = getDraftData(currentDraftKey);
+  data.checklist = data.checklist || {};
+  data.checklist[idx] = !data.checklist[idx];
+  saveDraftData(currentDraftKey, data);
+  renderChecklist(data);
+  flashSaved();
+}
+
+// ─── PDF Download ──────────────────────────────────────────────
+function downloadDraftPDF() {
+  const text = document.getElementById('draftArea').value.trim();
+  if (!text) { alert('Nothing to download — your draft is empty.'); return; }
+  const uni     = document.getElementById('draftUni').value || 'My Essay';
+  const type    = document.getElementById('draftType').value || '';
+  const program = document.getElementById('draftProgram').value || '';
+  const words   = text.split(/\s+/).length;
+  const title   = [uni, program, type].filter(Boolean).join(' — ');
+
+  // Use print-friendly popup window for PDF
+  const win = window.open('', '_blank', 'width=800,height=600');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"/>
+    <title>${title}</title>
+    <style>
+      body { font-family: Georgia, serif; font-size:12pt; line-height:1.8;
+             margin:2.5cm 3cm; color:#1a1a2e; }
+      h1 { font-size:14pt; font-weight:bold; margin-bottom:4px; }
+      .meta { font-size:10pt; color:#555; margin-bottom:24px; border-bottom:1px solid #ccc; padding-bottom:10px; }
+      .body-text { white-space:pre-wrap; }
+      .footer { font-size:9pt; color:#999; margin-top:32px; border-top:1px solid #eee; padding-top:8px; }
+    </style>
+  </head><body>
+    <h1>${title}</h1>
+    <div class="meta">Date: ${new Date().toLocaleDateString('en-CA')} · ${words} words</div>
+    <div class="body-text">${text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+    <div class="footer">UniGuide 🍁 · Generated ${new Date().toLocaleString('en-CA')}</div>
+    <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// ─── Copy to clipboard ────────────────────────────────────────
+function copyDraft() {
+  const text = document.getElementById('draftArea').value;
+  if (!text.trim()) { alert('Nothing to copy — your draft is empty.'); return; }
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+// ─── Clear draft ──────────────────────────────────────────────
+function clearDraft() {
+  if (!confirm('Clear this draft? Your saved versions will remain.')) return;
+  document.getElementById('draftArea').value = '';
+  updateWordCount();
+  onDraftInput();
+}
+
+// ─── Insert prompt ────────────────────────────────────────────
+function insertPrompt(template) {
+  const ta  = document.getElementById('draftArea');
+  const pos = ta.selectionStart;
+  const val = ta.value;
+  ta.value  = val.slice(0, pos) + (val ? '\n\n' : '') + template + val.slice(pos);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = pos + (val ? 2 : 0) + template.length;
+  updateWordCount();
+}
+
+// ─── Saved programs quick-fill ────────────────────────────────
+function loadSavedProgsQuickFill() {
+  let progs = [];
+  try { progs = JSON.parse(localStorage.getItem('savedPrograms') || '[]'); } catch(e){}
+  const row = document.getElementById('savedProgsRow');
+  const chips = document.getElementById('savedProgsChips');
+  if (!progs.length) { row.style.display = 'none'; return; }
+  row.style.display = 'block';
+  chips.innerHTML = progs.map(p =>
+    `<span class="prompt-chip" onclick="prefillFromProg(${JSON.stringify(p.uniName).replace(/'/g,"\\'")} ,${JSON.stringify(p.programName).replace(/'/g,"\\'")})">${p.programName} · ${p.uniName}</span>`
+  ).join('');
+}
+
+function prefillFromProg(uniName, programName) {
+  document.getElementById('draftUni').value     = uniName;
+  document.getElementById('draftProgram').value = programName;
+  saveDraftMeta();
+}
+
+// Initialize on page load
+initDrafts();
+function toggleExpand(el) {
+  const box = el.nextElementSibling;
+  box.classList.toggle('open');
+  el.textContent = box.classList.contains('open') ? '− Hide approach' : '+ Show approach';
+}
+function toggleCheck(el) { el.classList.toggle('checked'); el.textContent = el.classList.contains('checked') ? '✓' : ''; }
+function toggleChat() { document.getElementById('chatPanel').classList.toggle('open'); }
+const chatResponses = [
+  "For your hook, think about the most specific, vivid moment related to your interest. What were you physically doing when you knew this was the field for you?",
+  "The STAR method works really well here. Can you tell me the Situation first — where were you, what was happening?",
+  "That's a solid structure. The reflection paragraph could be stronger — instead of saying 'I learned a lot,' try saying exactly what you learned and how it changed a decision you made.",
+  "For the MMI, the key is showing your thought process, not just your conclusion. Evaluators want to see HOW you think, not just what answer you arrive at.",
+  "Your extracurricular descriptions in the AIF should always answer: What did I do? What was my specific role? What was the outcome or impact?",
+];
+let chatIdx = 0;
+function sendChat() {
+  const inp = document.getElementById('chatInput');
+  const msgs = document.getElementById('chatMessages');
+  if (!inp.value.trim()) return;
+  msgs.innerHTML += `<div class="chat-msg user">${inp.value}</div>`;
+  inp.value = '';
+  setTimeout(() => {
+    msgs.innerHTML += `<div class="chat-msg bot">${chatResponses[chatIdx % chatResponses.length]}</div>`;
+    chatIdx++;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 700);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+</script>
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>
