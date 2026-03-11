@@ -1,0 +1,67 @@
+Standardize and fix the Academics section in My List and the Majors flow.
+
+UI layout
+
+Under the six dropdowns (degree, co-op, target average, admission date, tuition/yr, competitiveness) add:
+
+Grade 11 average (projected) — single numeric field
+
+Grade 12 average (projected) — single numeric field
+
+Below Grade 12 average show Grade 11 subjects: allow selection of up to 8 subjects (course code or name) with an input for grade beside each.
+
+Below that show Grade 12 subjects: either:
+
+a dynamic prerequisite list (if the selected university+major defines prerequisites), with editable grade inputs for each prerequisite, or
+
+if the uni/major has no prerequisites, allow selecting up to 8 Grade 12 subjects with grade inputs.
+
+Prerequisite logic & validation
+
+For any Grade 12 course that requires a specific Grade 11 course (e.g., Grade 12 Advanced Functions requires Grade 11 Functions), validate that the required Grade 11 subject is selected. If missing, show an inline error code and message (example: ERR-PREREQ-01: Missing Grade 11 Functions — required for Grade 12 Advanced Functions) and prevent finalizing that application step.
+
+Errors must be descriptive, show which subject is missing, and point to the fix (e.g., “Add Grade 11 Functions in Grade 11 subjects”).
+
+Dropdowns (six) — make them context aware
+
+The six dropdowns must be context-aware: selections should influence suggestions, validation, and displayed prerequisites (e.g., choosing “Engineering + Co-op + target 92%” should surface engineering programs and their standard prereqs). Provide sensible defaults and short tooltips explaining each dropdown.
+
+Data & persistence
+
+All inputs must save to the user profile and persist across refreshes, logins, and navigation (localStorage + server DB sync).
+
+Fields are editable at any time and changes update dependent validations immediately.
+
+Tracker sync & scoring
+
+The application tracker’s percentage for “Academics” must be computed from the actual entered data (grade averages, required prereqs completed, and required number of courses) and update in real time. Example: if user has a 99% overall average but missing prereqs, Academics should reflect the true completion status (e.g., 70%).
+
+Show a clear breakdown (e.g., Average: 99% / Prereqs completed: 3/5 → Academics score: 70%).
+
+My List ⇄ Majors consistency
+
+Every major shown in the Majors tab must also appear in My List when added.
+
+Selecting a university for a major must not remove the major entry. Instead, save the combination as “University — Major” in My List.
+
+Fix the bug where majors disappear after assigning a university — the major should remain visible in both the Majors tab and My List, and the profile’s “selected major” should reflect the latest user choice (persisted).
+
+UX & accessibility
+
+Show optional/required labels, inline help, and keyboard accessible controls.
+
+Provide a compact summary at top of each My List item showing: selected major, selected university (if any), grade11 average, grade12 average, and Academics %.
+
+Testing / Acceptance criteria (deliverables)
+
+Clicking Save persists data and no fields reset on refresh.
+
+Enter Grade 11 Functions, then add Grade 12 Advanced Functions — no error. Remove Grade 11 Functions — ERR-PREREQ-01 appears.
+
+Select a major, then select a university for it → My List shows “University — Major” and Majors tab still lists the major.
+
+Academics tracker percentage updates immediately after any grade or prereq change and matches a visible breakdown.
+
+The six dropdowns change suggested majors/prereqs when altered.
+
+Do not change authentication or other unrelated systems. Keep changes scoped to Academics, tracker, and My List / Majors sync.
